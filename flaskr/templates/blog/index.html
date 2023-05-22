@@ -1,26 +1,19 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}Posts{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('blog.create') }}">New</a>
-  {% endif %}
-{% endblock %}
-
+{% block title %}Posts{% endblock %}
+{% if g.user %}
+  <a class="action" href="{{ url_for('blog.create') }}">New</a>
+{% endif %}
 {% block content %}
   {% for post in posts %}
-    <article class="post">
-      <header>
-        <div>
-          <h1><a href="{{ url_for('blog.post_single_view', id=post['id']) }}">{{ post['title'] }}</a></h1>
-          <div class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
-        </div>
-        {% if g.user['id'] == post['author_id'] %}
-          <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
-        {% endif %}
-      </header>
+    <div class="blog-post">
+      <h2 class="blog-post-title"><a href="{{ url_for('blog.post_single_view', id=post['id']) }}">{{ post['title'] }}</a></h2>
+      <p class="blog-post-meta">by <strong>{{ post['username'] }}</strong> on {{ post['created'].strftime('%Y-%m-%d, %H:%M:%S') }}</p>
+      {% if g.user['id'] == post['author_id'] %}
+        <a class="action" href="{{ url_for('blog.update', id=post['id']) }}">Edit</a>
+      {% endif %}
       <p class="body">{{ post['body'] }}</p>
-    </article>
+    </div>
     {% if not loop.last %}
       <hr>
     {% endif %}

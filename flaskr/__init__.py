@@ -3,6 +3,7 @@ from os import environ, path
 from dotenv import load_dotenv
 
 from flask import Flask
+from flask_bootstrap import Bootstrap4
 
 BASEDIR = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(BASEDIR, ".env"))
@@ -10,6 +11,7 @@ load_dotenv(path.join(BASEDIR, ".env"))
 def create_app(test_config=None):
     # create the flask instance and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    app.config['BOOTSTRAP_BOOTSWATCH_THEME'] = 'Cosmo'
     app.config.from_mapping(
         SECRET_KEY = 'dev',
         DATABASE = path.join(app.instance_path, 'flaskr.sqlite')
@@ -32,6 +34,7 @@ def create_app(test_config=None):
     from . import auth
     from . import blog
 
+    bootstrap = Bootstrap4(app)
     db.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
