@@ -12,10 +12,20 @@
     <label for="body">Body</label>
     <textarea name="body" id="body" disabled>{{ request.form['body'] or post['body'] }}</textarea>
   </form>
+  <p>Likes: {{ total_like }}</p>
   <hr>
   {% if g.user['id'] == post['author_id'] %}
   <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
     <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
   </form>
   {% endif %}
+  {% if user_liked  %}
+  <form action="{{ url_for('blog.unlike_post', post_id=post.id) }}" method="POST">
+    <button type="submit">Unlike</button>
+</form>
+    {% else %}
+    <form action="{{ url_for('blog.like_post', post_id=post.id) }}" method="POST">
+        <button type="submit">Like</button>
+    </form>
+    {% endif %}
 {% endblock %}
