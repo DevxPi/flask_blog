@@ -101,6 +101,20 @@ def has_post_like(id):
     return has_like
 
 
+# Get all comment from post
+def get_post_comment(id):
+    post_comment = (
+        get_db()
+        .execute(
+            "SELECT comment.*, user.username FROM comment JOIN user ON comment.user_id = user.id WHERE comment.post_id = ? ORDER BY comment.created_at ASC",
+            (id,),
+        )
+        .fetchall()
+    )
+
+    return post_comment
+
+
 # update route for update post
 @bp.route("/<int:id>/update", methods=["GET", "POST"])
 @login_required
@@ -140,9 +154,10 @@ def delete(id):
 
 
 # detail view for showing single post.
-@bp.route("/<int:id>/view")
+@bp.route("/<int:id>/view", methods=["GET", "POST"])
 def post_single_view(id):
     post = get_post(id, check_author=False)
+    comment = get_post_comment(id)
     like_post = get_post_like(id)
     like_post = len(like_post)
 
@@ -153,8 +168,26 @@ def post_single_view(id):
     else:
         user_liked = False
 
+    if request.method == "POST":
+        # Get the comment data from form submissiong
+        comment_body = request.form["comment_body"]
+
+        db = get_db()
+        db.execute(
+            "INSERT INTO comment (post_id, user_id, body) VALUES" " (?, ?, ?)",
+            (id, g.user["id"], comment_body),
+        )
+
+        db.commit()
+
+        return redirect(url_for("blog.post_single_view", id=id))
+
     return render_template(
-        "blog/view.html", post=post, total_like=like_post, user_liked=user_liked
+        "blog/view.html",
+        post=post,
+        total_like=like_post,
+        user_liked=user_liked,
+        comment=comment,
     )
 
 

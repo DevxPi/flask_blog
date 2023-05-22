@@ -1,31 +1,56 @@
-{% extends 'base.html' %}
-
-{% block header %}
-  <h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
-{% endblock %}
-
-{% block content %}
-  <form>
-    <label for="title">Title</label>
-    <input name="title" id="title"
-      value="{{ request.form['title'] or post['title'] }}" disabled>
-    <label for="body">Body</label>
-    <textarea name="body" id="body" disabled>{{ request.form['body'] or post['body'] }}</textarea>
-  </form>
-  <p>Likes: {{ total_like }}</p>
-  <hr>
-  {% if g.user['id'] == post['author_id'] %}
-  <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
-    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
-  </form>
-  {% endif %}
-  {% if user_liked  %}
-  <form action="{{ url_for('blog.unlike_post', post_id=post.id) }}" method="POST">
-    <button type="submit">Unlike</button>
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
+{% endblock %} {% block content %}
+<form>
+  <label for="title">Title</label>
+  <input
+    name="title"
+    id="title"
+    value="{{ request.form['title'] or post['title'] }}"
+    disabled
+  />
+  <label for="body">Body</label>
+  <textarea name="body" id="body" disabled>
+{{ request.form['body'] or post['body'] }}</textarea
+  >
 </form>
-    {% else %}
-    <form action="{{ url_for('blog.like_post', post_id=post.id) }}" method="POST">
-        <button type="submit">Like</button>
-    </form>
-    {% endif %}
+<p>Likes: {{ total_like }}</p>
+<hr />
+{% if g.user['id'] == post['author_id'] %}
+<form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
+  <input
+    class="danger"
+    type="submit"
+    value="Delete"
+    onclick="return confirm('Are you sure?');"
+  />
+</form>
+{% endif %} {% if user_liked %}
+<form action="{{ url_for('blog.unlike_post', post_id=post.id) }}" method="POST">
+  <button type="submit">Unlike</button>
+</form>
+{% else %}
+<form action="{{ url_for('blog.like_post', post_id=post.id) }}" method="POST">
+  <button type="submit">Like</button>
+</form>
+{% endif %}
+<h4>Comments:</h4>
+{% if comment%} {% for post_comment in comment %}
+<p>
+  <strong>User ID: </strong>{{ post_comment.user_id }}<br>
+  <strong>Username: </strong>{{ post_comment.username }}<br>
+  <strong>Comment time: </strong>{{ post_comment.created_at }}<br>
+  <strong>Comment: </strong>{{ post_comment.body }}
+</p>
+{% endfor %} {% else %} There is no comment {% endif %} 
+
+{% if g.user %}
+<h4>Add a Comment:</h4>
+<form method="POST" action="{{ url_for('blog.post_single_view', id=post.id) }}">
+    <textarea name="comment_body" rows="4" cols="50"></textarea>
+    <br>
+    <input type="submit" value="Submit Comment">
+</form>
+{% endif %}
+
 {% endblock %}
