@@ -8,6 +8,7 @@ from flaskr.db import get_db
 bp = Blueprint("blog", __name__)
 
 
+# Index/Home route
 @bp.route("/")
 def index():
     db = get_db()
@@ -20,6 +21,7 @@ def index():
     return render_template("blog/index.html", posts=posts)
 
 
+# Create route for create post
 @bp.route("/create", methods=["GET", "POST"])
 @login_required
 def create():
@@ -67,6 +69,7 @@ def get_post(id, check_author=True):
     return post
 
 
+# update route for update post
 @bp.route("/<int:id>/update", methods=["GET", "POST"])
 @login_required
 def update(id):
@@ -91,7 +94,7 @@ def update(id):
             return redirect(url_for("blog.index"))
     return render_template("blog/update.html", post=post)
 
-
+# Delete route for delete post
 @bp.route("/<int:id>/delete", methods=["GET", "POST"])
 @login_required
 def delete(id):
@@ -101,3 +104,12 @@ def delete(id):
     db.commit()
 
     return redirect(url_for("blog.index"))
+
+
+# detail view for showing single post.
+@bp.route("/<int:id>/view")
+@login_required
+def post_single_view(id):
+    post = get_post(id, check_author=False)
+
+    return render_template('blog/view.html', post=post)

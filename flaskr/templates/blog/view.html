@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <form>
+    <label for="title">Title</label>
+    <input name="title" id="title"
+      value="{{ request.form['title'] or post['title'] }}" disabled>
+    <label for="body">Body</label>
+    <textarea name="body" id="body" disabled>{{ request.form['body'] or post['body'] }}</textarea>
+  </form>
+  <hr>
+  {% if g.user['id'] == post['author_id'] %}
+  <form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
+  {% endif %}
+{% endblock %}
