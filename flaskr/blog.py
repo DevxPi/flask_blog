@@ -1,3 +1,5 @@
+import markdown
+
 from flask import (
     Blueprint,
     flash,
@@ -157,11 +159,18 @@ def delete(id):
 @bp.route("/<int:id>/view", methods=["GET", "POST"])
 def post_single_view(id):
     post = get_post(id, check_author=False)
+    user = get_db().execute("SELECT * FROM user WHERE id = ?",(post['author_id'],)).fetchone()
     comment = get_post_comment(id)
     like_post = get_post_like(id)
     like_post = len(like_post)
 
     user_id = session.get("user_id")
+
+    post_content = post['body']
+
+    html = markdown.markdown(post_content, extensions=["extra","fenced_code", "codehilite"])
+
+    render_html =  html
 
     if user_id is not None:
         user_liked = has_post_like(id)
@@ -184,7 +193,9 @@ def post_single_view(id):
 
     return render_template(
         "blog/view.html",
+        user=user,
         post=post,
+        post_markdown=render_html,
         total_like=like_post,
         user_liked=user_liked,
         comment=comment,

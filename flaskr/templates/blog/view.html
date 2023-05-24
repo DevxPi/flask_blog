@@ -1,56 +1,81 @@
-{% extends 'base.html' %} {% block header %}
-<h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
-{% endblock %} {% block content %}
-<form>
-  <label for="title">Title</label>
-  <input
-    name="title"
-    id="title"
-    value="{{ request.form['title'] or post['title'] }}"
-    disabled
-  />
-  <label for="body">Body</label>
-  <textarea name="body" id="body" disabled>
-{{ request.form['body'] or post['body'] }}</textarea
-  >
-</form>
-<p>Likes: {{ total_like }}</p>
-<hr />
-{% if g.user['id'] == post['author_id'] %}
-<form action="{{ url_for('blog.delete', id=post['id']) }}" method="post">
-  <input
-    class="danger"
-    type="submit"
-    value="Delete"
-    onclick="return confirm('Are you sure?');"
-  />
-</form>
-{% endif %} {% if user_liked %}
-<form action="{{ url_for('blog.unlike_post', post_id=post.id) }}" method="POST">
-  <button type="submit">Unlike</button>
-</form>
-{% else %}
-<form action="{{ url_for('blog.like_post', post_id=post.id) }}" method="POST">
-  <button type="submit">Like</button>
-</form>
-{% endif %}
-<h4>Comments:</h4>
-{% if comment%} {% for post_comment in comment %}
-<p>
-  <strong>User ID: </strong>{{ post_comment.user_id }}<br>
-  <strong>Username: </strong>{{ post_comment.username }}<br>
-  <strong>Comment time: </strong>{{ post_comment.created_at }}<br>
-  <strong>Comment: </strong>{{ post_comment.body }}
-</p>
-{% endfor %} {% else %} There is no comment {% endif %} 
+{% extends 'base.html' %} 
 
-{% if g.user %}
-<h4>Add a Comment:</h4>
-<form method="POST" action="{{ url_for('blog.post_single_view', id=post.id) }}">
-    <textarea name="comment_body" rows="4" cols="50"></textarea>
-    <br>
-    <input type="submit" value="Submit Comment">
-</form>
-{% endif %}
+{% block header %}
+  <h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
+{% endblock header %} 
+{{ render_css }}
+{% block content %}
+<article class="article">
+  <div class="article-title">
+      <h6><a href="#">Tag Here</a></h6>
+      <h2>{{ post['title'] }}</h2><small>by <strong>{{ user['username']}}</strong></small>
+      <hr>
+  </div>
+  
+  <div class="article-content">
+      {{ post_markdown|safe   }}
+  </div>
+</article>
+{% if user_liked %}
+      <form action="{{ url_for('blog.unlike_post', post_id=post.id) }}" method="POST">
+        <button type="submit" class="btn btn-primary">Unlike</button>
+      </form>
+    {% else %}
+      <form action="{{ url_for('blog.like_post', post_id=post.id) }}" method="POST">
+        <button type="submit" class="btn btn-primary">Like Post</button>
+      </form>
+    {% endif %}
+    <div class="justify-content-center mt-50 mb-100">
+      <div class="row">
+          <div class="col-md-12">
+    
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Recent Comments</h4>
+                    <h6 class="card-subtitle">Latest Comments section by users</h6> </div>
+                    <div class="comment-widgets m-b-20">
+                      {% if comment%} {% for post_comment in comment %}
+                      <div class="d-flex flex-row comment-row">
+                          <div class="p-2"><span class="round"><img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="user" width="50"></span></div>
+                          <div class="comment-text w-100">
+                              <h5>{{ post_comment.username }}</h5>
+                              <div class="comment-footer">
+                                  <span class="date">{{ post_comment.created_at }}</span>
+                                  <span class="label label-info">Pending</span> <span class="action-icons">
+                                          <a href="#" data-abc="true"><i class="fa fa-pencil"></i></a>
+                                          <a href="#" data-abc="true"><i class="fa fa-rotate-right"></i></a>
+                                          <a href="#" data-abc="true"><i class="fa fa-heart"></i></a>
+                                      </span>
+                              </div>
+                              <p class="m-b-5 m-t-10">{{ post_comment.body }}</p>
+                          </div>
+                      </div>
+                      {% endfor %} {% else %} There is no comment {% endif %}
+                    </div>
+                  </div>
+          
+                </div>
+            </div>
+      </div>
+
+    {% if g.user %}
+      <div class="contact-form article-comment">
+        <h4>Leave a Reply</h4>
+        <form id="contact-form" method="POST" action="{{ url_for('blog.post_single_view', id=post.id) }}">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <textarea name="comment_body" id="message" placeholder="Your message *" rows="4" class="form-control" required></textarea>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="send">
+                        <button class="px-btn theme"><span>Submit</span> <i class="arrow"></i></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
 
 {% endblock %}
