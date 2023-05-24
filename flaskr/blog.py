@@ -1,3 +1,5 @@
+import markdown
+
 from flask import (
     Blueprint,
     flash,
@@ -164,6 +166,12 @@ def post_single_view(id):
 
     user_id = session.get("user_id")
 
+    post_content = post['body']
+
+    html = markdown.markdown(post_content, extensions=["extra","fenced_code", "codehilite"])
+
+    render_html =  html
+
     if user_id is not None:
         user_liked = has_post_like(id)
     else:
@@ -187,6 +195,7 @@ def post_single_view(id):
         "blog/view.html",
         user=user,
         post=post,
+        post_markdown=render_html,
         total_like=like_post,
         user_liked=user_liked,
         comment=comment,

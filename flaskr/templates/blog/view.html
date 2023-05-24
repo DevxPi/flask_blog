@@ -2,30 +2,27 @@
 
 {% block header %}
   <h1>{% block title %}View "{{ post['title'] }}"{% endblock %}</h1>
-
-  {% block custom_style %}
-
-  
-  {% endblock custom_style %}
 {% endblock header %} 
-
+{{ render_css }}
 {% block content %}
 <article class="article">
   <div class="article-title">
       <h6><a href="#">Tag Here</a></h6>
       <h2>{{ post['title'] }}</h2><small>by <strong>{{ user['username']}}</strong></small>
+      <hr>
   </div>
+  
   <div class="article-content">
-      <p>{{ post['body']  }}</p>
+      {{ post_markdown|safe   }}
   </div>
 </article>
 {% if user_liked %}
       <form action="{{ url_for('blog.unlike_post', post_id=post.id) }}" method="POST">
-        <button type="submit">Unlike</button>
+        <button type="submit" class="btn btn-primary">Unlike</button>
       </form>
     {% else %}
       <form action="{{ url_for('blog.like_post', post_id=post.id) }}" method="POST">
-        <button type="button" class="btn btn-primary">Like Post</button>
+        <button type="submit" class="btn btn-primary">Like Post</button>
       </form>
     {% endif %}
     <div class="justify-content-center mt-50 mb-100">
