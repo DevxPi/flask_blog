@@ -1,6 +1,8 @@
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS post;
 DROP TABLE IF EXISTS post_like;
+DROP TABLE IF EXISTS tag;
+DROP TABLE IF EXISTS post_tag;
 DROP TABLE IF EXISTS comment;
 
 CREATE TABLE user (
@@ -16,6 +18,19 @@ CREATE TABLE post (
   title TEXT NOT NULL,
   body TEXT NOT NULL,
   FOREIGN KEY (author_id) REFERENCES user (id)
+);
+
+CREATE TABLE tag (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tag_name TEXT NOT NULL
+);
+
+CREATE TABLE post_tag (
+  post_id INTEGER NOT NULL,
+  tag_id INTEGER NOT NULL,
+  PRIMARY KEY (post_id, tag_id),
+  FOREIGN KEY (post_id) REFERENCES post (id),
+  FOREIGN KEY (tag_id) REFERENCES tag (id)
 );
 
 CREATE TABLE post_like (

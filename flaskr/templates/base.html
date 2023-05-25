@@ -66,7 +66,7 @@
       
           <footer class="text-center">
               {% block footer %}
-                  <small> &copy; 2022<script>document.write(new Date().getFullYear())</script> <a href="https://github.com/devxpi">DevxPi</a>
+                  <small> &copy; 2022 <script>document.write(new Date().getFullYear())</script> <a href="https://github.com/devxpi">DevxPi</a>
                   </small>
               {% endblock %}
           </footer>
@@ -74,5 +74,11 @@
             <!-- Optional JavaScript -->
             {{ bootstrap.load_js() }}
         {% endblock %}
+        
+        <script>
+          {% block custom_script %}
+          {% endblock custom_script %}
+        </script>
+        
     </body>
 </html>

@@ -31,33 +31,38 @@ def index():
 
     return render_template("blog/index.html", posts=posts)
 
+def  add_tag(post_id, tag_name) -> None:
+    db = get_db()
 
-# Create route for create post
-@bp.route("/create", methods=["GET", "POST"])
-@login_required
-def create():
-    if request.method == "POST":
-        title = request.form["title"]
-        body = request.form["body"]
-        error = None
+    # Check if tag already in table `tag` or not
+    tag = db.execute(
+        "SELECT tag_name FROM tag WHERE tag_name = ?",(tag_name,)
+    ).fetchone()
 
-        if not title:
-            error = "Title is required"
+    if tag:
+        tag_id = tag['id']
+    else:
+        # add tag into table
+        tag_id = db.execute(
+            "INSERT INTO tag (tag_name) VALUES (?)",(tag_name,)
+        )
+        tag_id = tag_id.lastrowid
 
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            db.execute(
-                "INSERT INTO post (title, body, author_id)" " VALUES (?, ?, ?)",
-                (title, body, g.user["id"]),
-            )
-            db.commit()
+    db.execute(
+        "INSERT INTO post_tag (post_id, tag_id) VALUES (?,?)",(post_id, tag_id)
+    )
+    db.commit()
 
-            return redirect(url_for("blog.index"))
-
-    return render_template("blog/create.html")
-
+def get_tag(post_id):
+    db = get_db()
+    tag = db.execute(
+        "SELECT tag.tag_name"
+        " FROM tag"
+        " JOIN post_tag ON post_tag.tag_id = tag.id"
+        " WHERE post_tag.post_id = ?",(post_id,)
+    )
+    tags = [row['tag_name'] for row in tag.fetchall()]
+    return tags
 
 def get_post(id, check_author=True):
     post = (
@@ -102,6 +107,37 @@ def has_post_like(id):
 
     return has_like
 
+# Create route for create post
+@bp.route("/create", methods=["GET", "POST"])
+@login_required
+def create():
+    if request.method == "POST":
+        title = request.form["title"]
+        body = request.form["body"]
+        tags = request.form.getlist("tags")
+        error = None
+        
+        if not title:
+            error = "Title is required"
+
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            post_id =db.execute(
+                "INSERT INTO post (title, body, author_id)" " VALUES (?, ?, ?)",
+                (title, body, g.user["id"]),
+            )
+            post_id = post_id.lastrowid
+
+            for tag in tags:
+                add_tag(post_id, tag)
+
+            db.commit()
+
+            return redirect(url_for("blog.index"))
+
+    return render_template("blog/create.html")
 
 # Get all comment from post
 def get_post_comment(id):
@@ -163,6 +199,8 @@ def post_single_view(id):
     comment = get_post_comment(id)
     like_post = get_post_like(id)
     like_post = len(like_post)
+    
+    tags = get_tag(id)
 
     user_id = session.get("user_id")
 
@@ -194,6 +232,7 @@ def post_single_view(id):
     return render_template(
         "blog/view.html",
         user=user,
+        tags=tags,
         post=post,
         post_markdown=render_html,
         total_like=like_post,

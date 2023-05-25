@@ -7,7 +7,7 @@
 {% block content %}
 <article class="article">
   <div class="article-title">
-      <h6><a href="#">Tag Here</a></h6>
+      {% for tag in tags %} <span class="badge badge-pill badge-light">{{ tag }}</span>{% endfor %}
       <h2>{{ post['title'] }}</h2><small>by <strong>{{ user['username']}}</strong></small>
       <hr>
   </div>
