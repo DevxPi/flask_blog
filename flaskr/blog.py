@@ -53,6 +53,16 @@ def  add_tag(post_id, tag_name) -> None:
     )
     db.commit()
 
+def get_tag(post_id):
+    db = get_db()
+    tag = db.execute(
+        "SELECT tag.tag_name"
+        " FROM tag"
+        " JOIN post_tag ON post_tag.tag_id = tag.id"
+        " WHERE post_tag.post_id = ?",(post_id,)
+    )
+    tags = [row['tag_name'] for row in tag.fetchall()]
+    return tags
 
 def get_post(id, check_author=True):
     post = (
@@ -189,6 +199,8 @@ def post_single_view(id):
     comment = get_post_comment(id)
     like_post = get_post_like(id)
     like_post = len(like_post)
+    
+    tags = get_tag(id)
 
     user_id = session.get("user_id")
 
@@ -220,6 +232,7 @@ def post_single_view(id):
     return render_template(
         "blog/view.html",
         user=user,
+        tags=tags,
         post=post,
         post_markdown=render_html,
         total_like=like_post,
