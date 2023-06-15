@@ -51,3 +51,4 @@ The application serves on `port:5000`
 - [ ] Upload an image to go along with a post.
 - [x] Format posts using Markdown.
 - [ ] An RSS feed of new posts.
+- [ ] Add markdown support
